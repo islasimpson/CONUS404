@@ -1,0 +1,82 @@
+#!/bin/bash
+#PBS -N ncrcat_job
+#PBS -l select=1:ncpus=10:mem=10GB
+#PBS -l walltime=12:00:00
+#PBS -q casper
+#PBS -j oe
+#PBS -o ./pbsfiles/output.log
+#PBS -e ./pbsfiles/error.log
+
+# ----Set up a trap to make completion fle when this completes or times out
+trap 'touch ./control/COMPLETE' EXIT
+
+# ----Get current working directory
+curdir=$(pwd)
+
+module load nco
+module load conda
+conda activate npl-2024a
+
+# ----Read in the dates from the file
+while IFS= read -r line ; do
+    dates+=("$line")
+done < "./control/files/datelist.txt"
+
+# ---Loop over dates
+reusewgts="False"
+for idate in ${dates[@]} ; do
+    echo "ncrcat-ing "$idate >> ./logs/progress.txt
+    #---get the year
+    year=${idate:0:4}
+    #---get the month as both string and integer
+    month=${idate:4:6}
+    month_int=$((10#$month))
+
+    #---Logic to deal with the water year directories
+    if [ $month_int -gt 9 ] ; then 
+        wy=$(($year+1))
+    else
+        wy=$year
+    fi
+
+    dir=$basepath/wy$wy/$idate
+
+    #---Work out the number of days in the month
+    ndays=`ls -d $dir/wrf2d_d01_$year'-'$month'-'*00:00:00.nc | wc -l`
+
+    #---Loop over days and do the ncrcat
+    for iday in `seq 1 $ndays` ; do
+        daystr=`printf %02d $iday`
+        datenow=$year'-'$month'-'$daystr
+        outfile=$tempdir/$var'_'$datenow'.nc'
+        files=`ls $dir/wrf2d*$datenow*.nc`
+        if [ ! -f $outfile ] ; then 
+            ncra -y sum -v $var $files -o $outfile & 
+        fi
+        # Limit to 10 background jobs
+        if (( $(jobs -r -p | wc -l) >= 10 )) ; then
+           wait -n
+        fi
+    done
+    wait
+
+    if [ ! -f $outpath/$runname'_'$var'_'$idate'.nc' ] ; then
+        ncrcat $tempdir/*.nc -o $outpath/$runname'_'$var'_'$idate'.nc'
+    fi
+
+    #---Clean up temporary files
+    rm $tempdir/*.nc
+
+    #---Do the regridding
+    if [ $reusewgts == "False" ] ; then
+        python ./control/scripts/regrid_conus404.py --wgtfile=$wgtfile --native_file=$outpath/$runname'_'$var'_'$idate'.nc'\
+        --grid_res=$grid_res --itype=$itype --fileout=$outpath_rg/$runname'_'$var'_ERA5grid_'$idate'.nc'
+        reusewgts="True"
+    else
+        python ./control/scripts/regrid_conus404.py --wgtfile=$wgtfile --native_file=$outpath/$runname'_'$var'_'$idate'.nc'\
+        --grid_res=$grid_res --itype=$itype --reuse_wgts --fileout=$outpath_rg/$runname'_'$var'_ERA5grid_'$idate'.nc'
+    fi
+
+    python ./control/scripts/cutdatefromlist.py --logname="./control/files/datelist.txt" --date="$idate"
+
+done
