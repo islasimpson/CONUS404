@@ -7,7 +7,7 @@ Scripts for averaging and regridding are in ```./regridding/``` and then in sub-
 
 How to run:
 
-The averaging and regridding is controlled by ``control\_jobs.sh``.  Set up the specifics of your case within the "USER DEFINITIONS" section of ``control\_jobs.sh``.  These include
+The averaging and regridding is controlled by ``control_jobs.sh``.  Set up the specifics of your case within the "USER DEFINITIONS" section of ``control_jobs.sh``.  These include
 
 1. ``user``: Your username on CISL machines
 2. ``account``: CISL project number
@@ -21,7 +21,7 @@ The averaging and regridding is controlled by ``control\_jobs.sh``.  Set up the 
 11. ``VARS``: List of variables for processing
 12. ``wgtfile``: Location in which to put the weight file for regridding (weight file is generated on first call).
 13. ``ITYPE``: List containing interpolation type (conservative or bilinear).   Must be the same size as VARS
-14. ``grid\_res``: Specifier for grid resolution of regridded output.  If set as a float e.g., 0.1 this will be the grid spacing for the output.  If set as a string, this will be the file that will be read in for the output grid (must contain dimensions ``lon`` and ``lat``.
+14. ``grid_res``: Specifier for grid resolution of regridded output.  If set as a float e.g., 0.1 this will be the grid spacing for the output.  If set as a string, this will be the file that will be read in for the output grid (must contain dimensions ``lon`` and ``lat``.
 
 Make sure the directory ``$output`` exists.  Then execute the script by...
 
