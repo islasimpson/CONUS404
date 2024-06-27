@@ -31,5 +31,5 @@ You might want to do this in a screen session.
 
 How it works: 
 
-First it calls the python script ``./control/scripts/get_datelist.py which gets the list of months to be processed.  Then it calls the pbs script get_dailyavg_monthlyfiles.pbs which does the processing.  This loops over months.  For each month it loops over days, runs ``ncra`` to get a daily average and outputs that to a temporary file.  Once the month is complete, it concatenates those daily files into one monthly file that contains all days in the native output directory.  It then calls the python script ./control/regrid_conus404.py to do the regridding and places the regridded data in the regridded output directory.
+First it calls the python script ``./control/scripts/get_datelist.py``` which gets the list of months to be processed.  Then it calls the pbs script get_dailyavg_monthlyfiles.pbs which does the processing.  This loops over months.  For each month it loops over days, runs ``ncra`` to get a daily average and outputs that to a temporary file.  Once the month is complete, it concatenates those daily files into one monthly file that contains all days in the native output directory.  It then calls the python script ./control/regrid_conus404.py to do the regridding and places the regridded data in the regridded output directory.
 
