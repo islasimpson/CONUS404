@@ -29,16 +29,19 @@ outpath="/glade/campaign/cgd/cas/islas/DATASETS/CONUS404/daily/native/"
 outpath_rg="/glade/campaign/cgd/cas/islas/DATASETS/CONUS404/daily/regridded_onto_era5/"
 
 #--Specify variables
-VARS=( 'PREC_ACC_NC' 'Q2' )
+VARS=( 'Q2' )
 
 #--Weight file for regridding
 wgtfile="/glade/derecho/scratch/islas/temp/conus404/wgts/wgt.nc"
 
 #--Interpolation type
-ITYPE=( 'conservative' 'bilinear' )
+ITYPE=( 'bilinear' )
 
 #--Output grid resolution (float to specify grid spacing, string to specify file containing input grid)
 grid_res="./grids/era5.nc"
+
+#--sumvar specifies whether to average the variable over the hours of the day (False) or whether to sum it (True)
+sumvar=( 'False' )
 
 #--------------------END USER DEFINITIONS-------------------------
 
@@ -79,6 +82,7 @@ for ivar in `seq 0 $(($nvars-1))` ; do
 
   ivar=${VARS[ivar]}
   itype=${ITYPE[ivar]}
+  isumvar=${sumvar[ivar]}
   
   # Use a python script to get the list of dates to process.
   # This list is places in ./control/files/datelist.txt
@@ -111,7 +115,7 @@ for ivar in `seq 0 $(($nvars-1))` ; do
      datecontinue=$(head -n 1 ./control/files/datelist.txt)
      echo "Continuation at date="$datecontinue >> ./logs/progress.txt
   
-     qsub -A $account -v runname=$runname,basepath=$basepath,outpath=$outpath_var,var=$ivar,tempdir=$tempdir,wgtfile=$wgtfile,itype=$itype,grid_res=$grid_res,outpath_rg=$outpath_rg_var get_dailyavg_monthlyfiles.pbs 
+     qsub -A $account -v runname=$runname,basepath=$basepath,outpath=$outpath_var,var=$ivar,tempdir=$tempdir,wgtfile=$wgtfile,itype=$itype,grid_res=$grid_res,outpath_rg=$outpath_rg_var,sumvar=$isumvar get_dailyavg_monthlyfiles.pbs 
   
      while [[ ! -f ./control/COMPLETE ]] ; do
         echo "Job is still running..."$(date) >> ./logs/progress.txt

@@ -51,7 +51,11 @@ for idate in ${dates[@]} ; do
         outfile=$tempdir/$var'_'$datenow'.nc'
         files=`ls $dir/wrf2d*$datenow*.nc`
         if [ ! -f $outfile ] ; then 
-            ncra -y sum -v $var $files -o $outfile & 
+            if [ $sumvar == "True" ] ; then 
+                ncra -y sum -v $var $files -o $outfile & 
+            else  
+                ncra -v $var $files -o $outfile & 
+            fi
         fi
         # Limit to 10 background jobs
         if (( $(jobs -r -p | wc -l) >= 10 )) ; then
