@@ -74,11 +74,11 @@ for idate in ${dates[@]} ; do
     #---Do the regridding
     if [ $reusewgts == "False" ] ; then
         python ./control/scripts/regrid_conus404.py --wgtfile=$wgtfile --native_file=$outpath/$runname'_'$var'_'$idate'.nc'\
-        --grid_res=$grid_res --itype=$itype --fileout=$outpath_rg/$runname'_'$var'_ERA5grid_'$idate'.nc'
+        --grid_res=$grid_res --itype=$itype --fileout=$outpath_rg/$runname'_'$var'_regrid_'$idate'.nc'
         reusewgts="True"
     else
         python ./control/scripts/regrid_conus404.py --wgtfile=$wgtfile --native_file=$outpath/$runname'_'$var'_'$idate'.nc'\
-        --grid_res=$grid_res --itype=$itype --reuse_wgts --fileout=$outpath_rg/$runname'_'$var'_ERA5grid_'$idate'.nc'
+        --grid_res=$grid_res --itype=$itype --reuse_wgts --fileout=$outpath_rg/$runname'_'$var'_regrid_'$idate'.nc'
     fi
 
     python ./control/scripts/cutdatefromlist.py --logname="./control/files/datelist.txt" --date="$idate"
