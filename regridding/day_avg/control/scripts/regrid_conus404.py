@@ -39,6 +39,8 @@ def regrid_conus404(wgtfile, native_file, grid_res, itype, reuse_wgts, fileout):
         if (lat_out[len(lat_out)-1] < lat_out[0]):
             lat_out = lat_out[::-1]
 
+        print(lon_out.values)
+
         lon_out = lon_out.sel(lon=slice(-139,-57))
         lat_out = lat_out.sel(lat=slice(17,58))
 
@@ -151,6 +153,7 @@ def fliplon_pos2neg(lon):
     """flip longitudes if lon goes from 0 to 360"""
     lonflip = (lon + 180) % 360 - 180
     lonflip['lon'] = lonflip
+    lonflip = lonflip.sortby('lon')
     return lonflip 
 
 def flexible_type(value):
